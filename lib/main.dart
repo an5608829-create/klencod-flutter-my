@@ -38,7 +38,7 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
   final TextEditingController _passwordController = TextEditingController();
   
   bool _isLoading = false;
-  bool _obscurePassword = true; // متغير إظهار وإخفاء كلمة المرور (زر العين)
+  bool _obscurePassword = true;
   String? _errorMessage;
   Map<String, dynamic>? _profileData;
 
@@ -54,6 +54,16 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
 
       int year = (centuryCode == "2" ? 1900 : centuryCode == "3" ? 2000 : 1800) + year2;
 
+      // حساب السن الحالي تلقائياً
+      int currentYear = 2026;
+      int currentMonth = 10;
+      int currentDay = 27;
+      
+      int age = currentYear - year;
+      if (currentMonth < month || (currentMonth == month && currentDay < day)) {
+        age--;
+      }
+
       Map<String, String> governorates = {
         "01": "القاهرة", "02": "الإسكندرية", "03": "بورسعيد", "04": "السويس", "11": "دمياط",
         "12": "الدقهلية", "13": "الشرقية", "14": "القليوبية", "15": "كفر الشيخ", "16": "الغربية",
@@ -67,6 +77,7 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
         "birthday": "$year-$month-$day",
         "governorate": governorates[govCode] ?? "غير معروف",
         "gender": genderDigit % 2 == 1 ? "ذكر" : "أنثى",
+        "age": "$age سنة",
       };
     } catch (_) {
       return {};
@@ -262,7 +273,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // رأس التطبيق
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -289,7 +299,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // بطاقة تسجيل الدخول
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF111827).withOpacity(0.9),
@@ -340,7 +349,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                       ),
                       const SizedBox(height: 14),
 
-                      // خانة كلمة المرور مع زر العين لإظهار/إخفاء النص
                       TextField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
@@ -449,7 +457,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // بطاقة عرض بيانات العميل بوضوح وترتيب صحيح
                 if (_profileData != null) ...[
                   Container(
                     decoration: BoxDecoration(
@@ -503,6 +510,7 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                           _buildInfoRow('تاريخ الميلاد', _profileData!['nidAnalysis']['birthday']),
                           _buildInfoRow('المحافظة', _profileData!['nidAnalysis']['governorate']),
                           _buildInfoRow('الجنس', _profileData!['nidAnalysis']['gender']),
+                          _buildInfoRow('السن', _profileData!['nidAnalysis']['age']), // حقل العمر الجديد تحت الجنس
                         ],
                       ],
                     ),
