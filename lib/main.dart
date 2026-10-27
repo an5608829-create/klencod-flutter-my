@@ -38,7 +38,7 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
   final TextEditingController _passwordController = TextEditingController();
   
   bool _isLoading = false;
-  bool _obscurePassword = true; // متغير التحكم في إظهار وإخفاء كلمة المرور عبر أيقونة العين
+  bool _obscurePassword = true; // متغير إظهار وإخفاء كلمة المرور (زر العين)
   String? _errorMessage;
   Map<String, dynamic>? _profileData;
 
@@ -258,11 +258,11 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // رأس التطبيق الفاخر
+                // رأس التطبيق
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -273,13 +273,13 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: const Color(0xFF00FF88).withOpacity(0.3)),
                       ),
-                      child: const Icon(Icons.bolt_rounded, color: Color(0xFF00FF88), size: 28),
+                      child: const Icon(Icons.bolt_rounded, color: Color(0xFF00FF88), size: 26),
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      'My WE Studio',
+                      'My WE Studio Pro',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         letterSpacing: 0.8,
@@ -287,73 +287,72 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 24),
 
-                // بطاقة الإدخال العصرية الفاخرة
+                // بطاقة تسجيل الدخول
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF111827).withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(28),
+                    color: const Color(0xFF111827).withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: Colors.white.withOpacity(0.08), width: 1.5),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.5),
-                        blurRadius: 25,
-                        offset: const Offset(0, 12),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'تسجيل الدخول للخدمة',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         'أدخل بيانات خط WE الخاص بك للمتابعة',
-                        style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
                       ),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 18),
 
-                      // حقل رقم الخط
                       TextField(
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                         decoration: InputDecoration(
                           labelText: 'رقم الخط (WE / اتصالات)',
-                          labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                          labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                           prefixIcon: const Icon(Icons.phone_android_rounded, color: Color(0xFF00FF88)),
                           filled: true,
                           fillColor: const Color(0xFF030712),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(14),
                             borderSide: const BorderSide(color: Color(0xFF00FF88), width: 1.5),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
-                      // حقل كلمة المرور مع زر إظهار/إخفاء (العين)
+                      // خانة كلمة المرور مع زر العين لإظهار/إخفاء النص
                       TextField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                         decoration: InputDecoration(
                           labelText: 'كلمة المرور',
-                          labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                          labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                           prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF00FF88)),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                              color: Colors.grey.shade400,
+                              color: Color(0xFF00FF88),
                             ),
                             onPressed: () {
                               setState(() {
@@ -364,32 +363,31 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                           filled: true,
                           fillColor: const Color(0xFF030712),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(14),
                             borderSide: const BorderSide(color: Color(0xFF00FF88), width: 1.5),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
-                      // زر الاتصال المتدرج الفاخر
                       SizedBox(
                         width: double.infinity,
-                        height: 56,
+                        height: 50,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF059669), Color(0xFF00FF88)],
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(0xFF00FF88).withOpacity(0.3),
-                                blurRadius: 15,
-                                offset: const Offset(0, 6),
+                                blurRadius: 12,
+                                offset: const Offset(0, 5),
                               ),
                             ],
                           ),
@@ -399,16 +397,16 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child: _isLoading
                                 ? const SizedBox(
-                                    width: 26,
-                                    height: 26,
+                                    width: 24,
+                                    height: 24,
                                     child: CircularProgressIndicator(
                                       color: Colors.black,
-                                      strokeWidth: 3,
+                                      strokeWidth: 2.5,
                                     ),
                                   )
                                 : const Text(
@@ -424,22 +422,22 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                       ),
 
                       if (_errorMessage != null) ...[
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 16),
                         Container(
-                          padding: const EdgeInsets.all(14),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Colors.redAccent.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 22),
-                              const SizedBox(width: 10),
+                              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 20),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   _errorMessage!,
-                                  style: const TextStyle(color: Colors.redAccent, fontSize: 13, height: 1.4),
+                                  style: const TextStyle(color: Colors.redAccent, fontSize: 13, height: 1.3),
                                 ),
                               ),
                             ],
@@ -449,24 +447,24 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
-                // بطاقة عرض البيانات المستخرجة بشكل احترافي
+                // بطاقة عرض بيانات العميل بوضوح وترتيب صحيح
                 if (_profileData != null) ...[
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF111827).withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(28),
+                      color: const Color(0xFF111827).withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: const Color(0xFF00FF88).withOpacity(0.4), width: 1.5),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.5),
-                          blurRadius: 25,
-                          offset: const Offset(0, 12),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.all(20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -478,17 +476,17 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                                 color: const Color(0xFF00FF88).withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(Icons.verified_rounded, color: Color(0xFF00FF88), size: 22),
+                              child: const Icon(Icons.verified_rounded, color: Color(0xFF00FF88), size: 20),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             const Text(
                               'بيانات العميل المستخرجة',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
                             ),
                           ],
                         ),
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: 14),
                           child: Divider(color: Color(0xFF1F2937), height: 1),
                         ),
                         _buildInfoRow('اسم العميل', _profileData!['custName']),
@@ -499,7 +497,7 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                         
                         if (_profileData!['nidAnalysis'].isNotEmpty) ...[
                           const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 12),
+                            padding: EdgeInsets.symmetric(vertical: 10),
                             child: Divider(color: Color(0xFF1F2937), height: 1),
                           ),
                           _buildInfoRow('تاريخ الميلاد', _profileData!['nidAnalysis']['birthday']),
@@ -520,12 +518,12 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(label, style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
+          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
         ],
       ),
     );
