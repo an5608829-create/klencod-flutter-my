@@ -12,12 +12,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'My WE Studio',
+      title: 'My WE Studio Pro',
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0B0F19),
+        scaffoldBackgroundColor: const Color(0xFF070B14),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF10B981),
+          seedColor: const Color(0xFF00FF88),
           brightness: Brightness.dark,
         ),
       ),
@@ -38,6 +38,7 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
   final TextEditingController _passwordController = TextEditingController();
   
   bool _isLoading = false;
+  bool _obscurePassword = true; // متغير التحكم في إظهار وإخفاء كلمة المرور عبر أيقونة العين
   String? _errorMessage;
   Map<String, dynamic>? _profileData;
 
@@ -97,7 +98,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
     try {
       final client = http.Client();
       
-      // 1. طلب الكابتشا بنفس طريقة السكريبت الناجحة
       final captchaRes = await client.post(
         Uri.parse("https://captcha.te.eg/api/Captcha/GenerateCaptcha"),
         headers: {
@@ -118,7 +118,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
       final now = DateTime.now().millisecondsSinceEpoch;
       final deviceId = _randomHex(16);
       
-      // 2. إرسال طلب تسجيل الدخول بالهيدرات الكاملة تماماً مثل السكريبت
       final authRes = await client.post(
         Uri.parse("https://app-my.te.eg/echannel/service/besapp/base/rest/busiservice/v1/auth/userAuthenticate"),
         headers: {
@@ -161,7 +160,7 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
       
       if (header["retCode"] != "0") {
         String errorMsg = header["errorMsg"] ?? "فشل تسجيل الدخول";
-        throw "❌ خطأ من السيرفر: $errorMsg";
+        throw "❌ $errorMsg";
       }
 
       final body = result["body"] ?? {};
@@ -172,7 +171,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
       final uToken = body["utoken"] ?? "";
       final loginToken = body["token"] ?? "";
       final refreshToken = body["refresh_token"] ?? "";
-      final custId = customer["custId"] ?? "";
 
       final Map<String, String> commonHeaders = {
         "User-Agent": "okhttp/5.0.0-alpha.2",
@@ -202,7 +200,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
         "reqbodysign": _randomHex(32),
       };
 
-      // تهيئة الـ Session بنفس المسارات الموجودة في السكريبت
       final BASE = "https://app-my.te.eg/echannel/service/besapp/base/rest/busiservice";
       for (var endpoint in [
         "$BASE/cz/v1/auth/validateAuthenticateForBio",
@@ -214,7 +211,6 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
         } catch (_) {}
       }
 
-      // 3. جلب الرقم القومي والبيانات بالتفصيل مثل السكريبت تماماً
       String fullNationalId = "";
       try {
         final nidRes = await client.post(
@@ -251,204 +247,271 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.bolt_rounded, color: Color(0xFF10B981), size: 24),
-            SizedBox(width: 8),
-            Text('My WE Studio', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0F172A), Color(0xFF070B14), Color(0xFF020617)],
+          ),
         ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF131B2E),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFF1E293B), width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(22.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // رأس التطبيق الفاخر
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00FF88).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFF00FF88).withOpacity(0.3)),
+                      ),
+                      child: const Icon(Icons.bolt_rounded, color: Color(0xFF00FF88), size: 28),
+                    ),
+                    const SizedBox(width: 12),
                     const Text(
-                      'تسجيل الدخول للخدمة',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: 'رقم الخط (WE / اتصالات)',
-                        labelStyle: TextStyle(color: Colors.grey.shade400),
-                        prefixIcon: const Icon(Icons.phone_android_rounded, color: Color(0xFF10B981)),
-                        filled: true,
-                        fillColor: const Color(0xFF0B0F19),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
-                        ),
+                      'My WE Studio',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.8,
                       ),
                     ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: 'كلمة المرور',
-                        labelStyle: TextStyle(color: Colors.grey.shade400),
-                        prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF10B981)),
-                        filled: true,
-                        fillColor: const Color(0xFF0B0F19),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF059669), Color(0xFF10B981)],
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF10B981).withOpacity(0.3),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _loginAndFetchData,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
-                                  ),
-                                )
-                              : const Text(
-                                  'اتصال وجلب البيانات',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                    if (_errorMessage != null) ...[
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.error_outline, color: Colors.redAccent, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _errorMessage!,
-                                style: const TextStyle(color: Colors.redAccent, fontSize: 13, height: 1.3),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ]
                   ],
                 ),
-              ),
-              const SizedBox(height: 24),
-              if (_profileData != null) ...[
+                const SizedBox(height: 30),
+
+                // بطاقة الإدخال العصرية الفاخرة
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF131B2E),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFF10B981).withOpacity(0.5), width: 1.5),
+                    color: const Color(0xFF111827).withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(color: Colors.white.withOpacity(0.08), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Colors.black.withOpacity(0.5),
+                        blurRadius: 25,
+                        offset: const Offset(0, 12),
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.all(22.0),
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: const [
-                          Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 24),
-                          SizedBox(width: 8),
-                          Text('بيانات العميل المستخرجة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                        ],
+                      const Text(
+                        'تسجيل الدخول للخدمة',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Divider(color: Color(0xFF1E293B)),
+                      const SizedBox(height: 6),
+                      Text(
+                        'أدخل بيانات خط WE الخاص بك للمتابعة',
+                        style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
                       ),
-                      _buildInfoRow('اسم العميل', _profileData!['custName']),
-                      _buildInfoRow('رقم الخط', _profileData!['servNumber']),
-                      _buildInfoRow('نوع الدفع', _profileData!['paymentType']),
-                      _buildInfoRow('حالة الخط', _profileData!['state']),
-                      _buildInfoRow('الرقم القومي', _profileData!['nationalId'].isEmpty ? 'غير متوفر' : _profileData!['nationalId']),
-                      
-                      if (_profileData!['nidAnalysis'].isNotEmpty) ...[
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Divider(color: Color(0xFF1E293B)),
+                      const SizedBox(height: 22),
+
+                      // حقل رقم الخط
+                      TextField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                        decoration: InputDecoration(
+                          labelText: 'رقم الخط (WE / اتصالات)',
+                          labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                          prefixIcon: const Icon(Icons.phone_android_rounded, color: Color(0xFF00FF88)),
+                          filled: true,
+                          fillColor: const Color(0xFF030712),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: Color(0xFF00FF88), width: 1.5),
+                          ),
                         ),
-                        _buildInfoRow('تاريخ الميلاد', _profileData!['nidAnalysis']['birthday']),
-                        _buildInfoRow('المحافظة', _profileData!['nidAnalysis']['governorate']),
-                        _buildInfoRow('الجنس', _profileData!['nidAnalysis']['gender']),
-                      ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // حقل كلمة المرور مع زر إظهار/إخفاء (العين)
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                        decoration: InputDecoration(
+                          labelText: 'كلمة المرور',
+                          labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                          prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF00FF88)),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                              color: Colors.grey.shade400,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFF030712),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: Color(0xFF00FF88), width: 1.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // زر الاتصال المتدرج الفاخر
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF059669), Color(0xFF00FF88)],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF00FF88).withOpacity(0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _loginAndFetchData,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 26,
+                                    height: 26,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.black,
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : const Text(
+                                    'اتصال وجلب البيانات',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+
+                      if (_errorMessage != null) ...[
+                        const SizedBox(height: 18),
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 22),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  _errorMessage!,
+                                  style: const TextStyle(color: Colors.redAccent, fontSize: 13, height: 1.4),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]
                     ],
                   ),
                 ),
-              ]
-            ],
+                const SizedBox(height: 24),
+
+                // بطاقة عرض البيانات المستخرجة بشكل احترافي
+                if (_profileData != null) ...[
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF111827).withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: const Color(0xFF00FF88).withOpacity(0.4), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 25,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00FF88).withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.verified_rounded, color: Color(0xFF00FF88), size: 22),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'بيانات العميل المستخرجة',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Divider(color: Color(0xFF1F2937), height: 1),
+                        ),
+                        _buildInfoRow('اسم العميل', _profileData!['custName']),
+                        _buildInfoRow('رقم الخط', _profileData!['servNumber']),
+                        _buildInfoRow('نوع الدفع', _profileData!['paymentType']),
+                        _buildInfoRow('حالة الخط', _profileData!['state']),
+                        _buildInfoRow('الرقم القومي', _profileData!['nationalId'].isEmpty ? 'غير متوفر' : _profileData!['nationalId']),
+                        
+                        if (_profileData!['nidAnalysis'].isNotEmpty) ...[
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(color: Color(0xFF1F2937), height: 1),
+                          ),
+                          _buildInfoRow('تاريخ الميلاد', _profileData!['nidAnalysis']['birthday']),
+                          _buildInfoRow('المحافظة', _profileData!['nidAnalysis']['governorate']),
+                          _buildInfoRow('الجنس', _profileData!['nidAnalysis']['gender']),
+                        ],
+                      ],
+                    ),
+                  ),
+                ]
+              ],
+            ),
           ),
         ),
       ),
@@ -457,7 +520,7 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
