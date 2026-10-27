@@ -42,46 +42,68 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
   String? _errorMessage;
   Map<String, dynamic>? _profileData;
 
-  Map<String, String> _analyzeNationalId(String nid) {
-    if (nid.length != 14) return {};
-    try {
-      String centuryCode = nid[0];
-      int year2 = int.parse(nid.substring(1, 3));
-      int month = int.parse(nid.substring(3, 5));
-      int day = int.parse(nid.substring(5, 7));
-      String govCode = nid.substring(7, 9);
-      int genderDigit = int.parse(nid[12]);
-
-      int year = (centuryCode == "2" ? 1900 : centuryCode == "3" ? 2000 : 1800) + year2;
-
-      // حساب السن الحالي تلقائياً
-      int currentYear = 2026;
-      int currentMonth = 10;
-      int currentDay = 27;
-      
-      int age = currentYear - year;
-      if (currentMonth < month || (currentMonth == month && currentDay < day)) {
-        age--;
-      }
-
-      Map<String, String> governorates = {
-        "01": "القاهرة", "02": "الإسكندرية", "03": "بورسعيد", "04": "السويس", "11": "دمياط",
-        "12": "الدقهلية", "13": "الشرقية", "14": "القليوبية", "15": "كفر الشيخ", "16": "الغربية",
-        "17": "المنوفية", "18": "البحيرة", "19": "الإسماعيلية", "21": "الجيزة", "22": "بني سويف",
-        "23": "الفيوم", "24": "المنيا", "25": "أسيوط", "26": "سوهاج", "27": "قنا", "28": "أسوان",
-        "29": "الأقصر", "31": "البحر الأحمر", "32": "الوادي الجديد", "33": "مطروح",
-        "34": "شمال سيناء", "35": "جنوب سيناء", "88": "خارج الجمهورية"
-      };
-
-      return {
-        "birthday": "$year-$month-$day",
-        "governorate": governorates[govCode] ?? "غير معروف",
-        "gender": genderDigit % 2 == 1 ? "ذكر" : "أنثى",
-        "age": "$age سنة",
-      };
-    } catch (_) {
-      return {};
+  int _calculateAge(DateTime birthDate) {
+    DateTime today = DateTime.now();
+    int age = today.year - birthDate.year;
+    if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
     }
+    return age;
+  }
+
+  Map<String, String> _analyzeNationalId(String nid, {int? apiBirthdayTimestamp}) {
+    String birthdayStr = "-";
+    String ageStr = "-";
+    String genderStr = "غير معروف";
+    String govStr = "غير معروف";
+
+    if (apiBirthdayTimestamp != null && apiBirthdayTimestamp > 0) {
+      try {
+        DateTime bDate = DateTime.fromMillisecondsSinceEpoch(apiBirthdayTimestamp);
+        birthdayStr = "${bDate.year}-${bDate.month.toString().padLeft(2, '0')}-${bDate.day.toString().padLeft(2, '0')}";
+        int age = _calculateAge(bDate);
+        ageStr = "$age سنة";
+      } catch (_) {}
+    }
+
+    if (nid.isNotEmpty && nid.length == 14) {
+      try {
+        String centuryCode = nid[0];
+        int year2 = int.parse(nid.substring(1, 3));
+        int month = int.parse(nid.substring(3, 5));
+        int day = int.parse(nid.substring(5, 7));
+        String govCode = nid.substring(7, 9);
+        int genderDigit = int.parse(nid[12]);
+
+        int year = (centuryCode == "2" ? 1900 : centuryCode == "3" ? 2000 : 1800) + year2;
+        
+        if (birthdayStr == "-") {
+          DateTime birthDate = DateTime(year, month, day);
+          birthdayStr = "$year-$month-$day";
+          int age = _calculateAge(birthDate);
+          ageStr = "$age سنة";
+        }
+
+        genderStr = genderDigit % 2 == 1 ? "ذكر" : "أنثى";
+
+        Map<String, String> governorates = {
+          "01": "القاهرة", "02": "الإسكندرية", "03": "بورسعيد", "04": "السويس", "11": "دمياط",
+          "12": "الدقهلية", "13": "الشرقية", "14": "القليوبية", "15": "كفر الشيخ", "16": "الغربية",
+          "17": "المنوفية", "18": "البحيرة", "19": "الإسماعيلية", "21": "الجيزة", "22": "بني سويف",
+          "23": "الفيوم", "24": "المنيا", "25": "أسيوط", "26": "سوهاج", "27": "قنا", "28": "أسوان",
+          "29": "الأقصر", "31": "البحر الأحمر", "32": "الوادي الجديد", "33": "مطروح",
+          "34": "شمال سيناء", "35": "جنوب سيناء", "88": "خارج الجمهورية"
+        };
+        govStr = governorates[govCode] ?? "غير معروف";
+      } catch (_) {}
+    }
+
+    return {
+      "birthday": birthdayStr,
+      "governorate": govStr,
+      "gender": genderStr,
+      "age": ageStr,
+    };
   }
 
   String _randomHex(int length) {
@@ -232,17 +254,20 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
         fullNationalId = jsonDecode(nidRes.body)["body"]?["nationalId"] ?? "";
       } catch (_) {}
 
+      int? apiBirthday = individual["birthday"];
+      String genderDisplay = individual["gender"] == "1" ? "ذكر" : "أنثى";
+
       setState(() {
         _profileData = {
           "custName": customer["custName"] ?? "غير معروف",
-          "gender": individual["gender"] == "1" ? "ذكر" : "أنثى",
+          "gender": genderDisplay,
           "custType": customer["custType"] == "1" ? "فردي" : "شركة",
           "servNumber": subscriber["servNumber"] ?? phone,
           "state": subscriber["state"] == "2" ? "✅ نشط" : "⏸️ موقوف",
           "paymentType": subscriber["paymentType"] == "1" ? "فاتورة" : "مدفوع مسبقاً",
           "acctId": account["acctId"] ?? "-",
-          "nationalId": fullNationalId,
-          "nidAnalysis": _analyzeNationalId(fullNationalId),
+          "nationalId": fullNationalId.isNotEmpty ? fullNationalId : "غير متوفر",
+          "nidAnalysis": _analyzeNationalId(fullNationalId, apiBirthdayTimestamp: apiBirthday),
         };
         _isLoading = false;
       });
@@ -500,17 +525,17 @@ class _WEAuthScreenState extends State<WEAuthScreen> {
                         _buildInfoRow('رقم الخط', _profileData!['servNumber']),
                         _buildInfoRow('نوع الدفع', _profileData!['paymentType']),
                         _buildInfoRow('حالة الخط', _profileData!['state']),
-                        _buildInfoRow('الرقم القومي', _profileData!['nationalId'].isEmpty ? 'غير متوفر' : _profileData!['nationalId']),
+                        _buildInfoRow('الرقم القومي', _profileData!['nationalId']),
                         
-                        if (_profileData!['nidAnalysis'].isNotEmpty) ...[
+                        if (_profileData!['nidAnalysis'] != null) ...[
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 10),
                             child: Divider(color: Color(0xFF1F2937), height: 1),
                           ),
-                          _buildInfoRow('تاريخ الميلاد', _profileData!['nidAnalysis']['birthday']),
-                          _buildInfoRow('المحافظة', _profileData!['nidAnalysis']['governorate']),
-                          _buildInfoRow('الجنس', _profileData!['nidAnalysis']['gender']),
-                          _buildInfoRow('السن', _profileData!['nidAnalysis']['age']), // حقل العمر الجديد تحت الجنس
+                          _buildInfoRow('تاريخ الميلاد', _profileData!['nidAnalysis']['birthday'] ?? '-'),
+                          _buildInfoRow('المحافظة', _profileData!['nidAnalysis']['governorate'] ?? '-'),
+                          _buildInfoRow('الجنس', _profileData!['nidAnalysis']['gender'] ?? '-'),
+                          _buildInfoRow('السن', _profileData!['nidAnalysis']['age'] ?? '-'),
                         ],
                       ],
                     ),
